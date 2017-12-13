@@ -1,0 +1,10 @@
+{
+    "dev": {
+        "app_function": "check.app", 
+        "aws_region": "us-west-2", 
+        "profile_name": "default", 
+        "project_name": "mstopolambda-re", 
+        "runtime": "python2.7", 
+        "s3_bucket": "zappa-topochecker"
+    }
+}
