@@ -74,9 +74,12 @@ if __name__ == '__main__':
         #resp = requests.get('http://10.79.11.36:5000/check/(N%20[TRANSPORTBUSSTOP])')
         #resp = requests.get('http://127.0.0.1:5000/check/(N%20[TRANSPORTBUSSTOP])')
 
-        # LAMBDA
-        resp = requests.get(
-            'https://qiz6l70gm4.execute-api.us-west-2.amazonaws.com/dev/check/%28N%20%5BTRANSPORTBUSSTOP%5D%29')
+        #EC2 (single instance)
+        #resp = requests.get('http://52.42.97.232:5000/check/(N%20[TRANSPORTBUSSTOP])')
+
+        #Load Balancer
+        resp = requests.get('http://topochecker-load-balancer-375081757.us-west-2.elb.amazonaws.com:5000/check/(N%20[TRANSPORTBUSSTOP])')
+
         #resp = requests.get('https://qiz6l70gm4.execute-api.us-west-2.amazonaws.com/dev/check/')
         print resp
         prev = taxipresence

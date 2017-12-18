@@ -3,6 +3,7 @@ from spacegraph import *
 from shutil import copyfile, copytree
 from flask import Flask, request
 from flask_restful import Resource, Api
+import os
 import time
 import json
 import urllib2
@@ -15,7 +16,8 @@ except:
 # space = SpacePredicatedGraph(closurefile="../chinadataplay/networks_generated/full-network-trajects10357searchrange20bglimitpresences1poicount11741-closurespace.gml")
 copyfile("./mini-closurespace.gml", "/tmp/mini-closurespace.gml")
 copyfile("./topochecker", "/tmp/topochecker")
-copytree("./topotmp","/tmp/topotmp")
+if not os.path.isdir('/tmp/topotmp'):
+    copytree("./topotmp","/tmp/topotmp")
 
 #space = SpacePredicatedGraph(closurefile="./mini-closurespace.gml")
 space = SpacePredicatedGraph(closurefile="/tmp/mini-closurespace.gml")
@@ -59,8 +61,14 @@ class Checker(Resource):
 
 app = Flask(__name__)
 api = Api(app)
-
 api.add_resource(Checker, '/check/<string:spatialprop>')
+
+class HealthCheck(Resource):
+    def get(self):
+        return {'status':'up'}
+
+api.add_resource(HealthCheck, '/check')
+
 
 if __name__ == '__main__':
     # spatialprop = " (N [TRANSPORTBUSSTOP])"
