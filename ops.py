@@ -66,7 +66,7 @@ if __name__ == '__main__':
         #resp = requests.post('http://127.0.0.1:5001/update', json=task)
         #resp = requests.post('http://10.79.11.36:5001/update', json=task)
         # EC2
-        resp = requests.post('http://35.167.250.213:5001/update', json=task)
+        resp = requests.post('http://52.27.220.158:5001/update', json=task)
 
         # check
         # LOCAL

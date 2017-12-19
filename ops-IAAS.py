@@ -66,7 +66,7 @@ if __name__ == '__main__':
         #resp = requests.post('http://127.0.0.1:5001/update', json=task)
         #resp = requests.post('http://10.79.11.36:5001/update', json=task)
         # EC2
-        resp = requests.post('http://35.167.250.213:5001/update', json=task)
+        resp = requests.post('http://52.27.220.158:5001/update', json=task)
 
         # check
         # LOCAL
@@ -75,10 +75,10 @@ if __name__ == '__main__':
         #resp = requests.get('http://127.0.0.1:5000/check/(N%20[TRANSPORTBUSSTOP])')
 
         #EC2 (single instance)
-        #resp = requests.get('http://52.42.97.232:5000/check/(N%20[TRANSPORTBUSSTOP])')
+        #resp = requests.get('http://34.216.37.137:5000/check/(N%20[TRANSPORTBUSSTOP])')
 
         #Load Balancer
-        resp = requests.get('http://topochecker-load-balancer-375081757.us-west-2.elb.amazonaws.com:5000/check/(N%20[TRANSPORTBUSSTOP])')
+        resp = requests.get('http://topochecker-load-balancer-1231732645.us-west-2.elb.amazonaws.com:5000/check/(N%20[TRANSPORTBUSSTOP])')
 
         #resp = requests.get('https://qiz6l70gm4.execute-api.us-west-2.amazonaws.com/dev/check/')
         print resp

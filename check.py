@@ -48,7 +48,7 @@ class Checker(Resource):
         #current_space = json.load(urllib2.urlopen("http://10.79.11.36:5001/space"))
 
         #EC2 Server
-        current_space = json.load(urllib2.urlopen("http://35.167.250.213:5001/space"))
+        current_space = json.load(urllib2.urlopen("http://52.27.220.158:5001/space"))
         #print 'got taxi positions',len(current_space),
         # populate with current space
         space.populate_closurespace_presence_map(current_space)
