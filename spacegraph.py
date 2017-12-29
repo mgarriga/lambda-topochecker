@@ -3,7 +3,7 @@
 """
 topoinvoker
 """
-from networkx import Graph, DiGraph, strongly_connected_component_subgraphs, draw, relabel_nodes
+from networkx import Graph, DiGraph, strongly_connected_component_subgraphs, draw, relabel_nodes, isolates
 from networkx.drawing.nx_agraph import to_agraph
 from networkx import write_gml, read_gml
 import uuid
@@ -67,18 +67,11 @@ class SpacePredicatedGraph(DiGraph):
 
         # make sure topochecker is there. otherwise raise exception
         # self.g = g # SpacePredicatedGraph instance
-        # self.path_to_executable = "./topochecker"
-
-        # Path for LAMBDA
-        self.path_to_executable = "/tmp/topochecker"
-
+        self.path_to_executable = "./topochecker"
 
         # use tmpfs on linux to be faster
         # self.tmppath = "/dev/shm/topotmp/"
-        # self.tmppath = "./topotmp/"
-
-        # Path for LAMBDA
-        self.tmppath = "/tmp/topotmp/"
+        self.tmppath = "./topotmp/"
 
         # make sure the directory exists
         try:
@@ -87,9 +80,8 @@ class SpacePredicatedGraph(DiGraph):
             if not os.path.isdir(self.tmppath):
                 raise
 
-        self.file_id = self.unique_file_id()
-        self.write_topo_files()
-
+        self.remove_isolates()
+                
     def has_predicate(self, n, p):
         for term in self.predicates[n]:
             if term == p:
@@ -185,6 +177,14 @@ class SpacePredicatedGraph(DiGraph):
         self.relabel(restore=True)
         return dotstring
 
+    def remove_isolates(self):
+        """ workaround for bug in topochecker: topochecker will fail if there are evaluation 
+        declarations of closure points that are not found in the spacemodel."""
+        isolate_nodes = list(isolates(self))
+        if isolate_nodes:
+            print 'removing isolate closure points', isolate_nodes
+            self.remove_nodes_from(isolate_nodes)
+
     def topo_csv(self):
         """ build csv propositions for topochecker"""
         # nodes must be labelled from 0
@@ -195,13 +195,10 @@ class SpacePredicatedGraph(DiGraph):
             line = []
             line.append("0")
             line.append(str(i))
-
             node_id = self.topochecker_relabelling_inverse[i]
             for p in self.predicates[node_id]:
                 line.append(p)
-
             lines += [",".join(line)]
-
         total = "\n".join(lines)
         # TODO fix this ugliness
         self.relabel(restore=True)
@@ -226,45 +223,56 @@ class SpacePredicatedGraph(DiGraph):
                 # Using `os.fdopen` converts the handle to an object
                 text_file.write("digraph{\n0;\n}")
 
-    def write_topo_files(self):
-        """ write files before invoking topochecker (which will happen by TopoInvoker).
+    def write_topo_files(self,unique_file_id):
+        """ write files before invoking topochecker (which will happen by TopoInvoker). 
         We need this here to keep the SpacePredicatedGraph on states."""
 
-        with open(self.tmppath + "spacemodel" + self.file_id + ".dot", "w") as text_file:
-            text_file.write(self.to_dot())
-        with open(self.tmppath + "valuations" + self.file_id + ".csv", "w") as text_file:
+        if not os.path.isfile(self.tmppath + "spacemodel" + ".dot"):
+            self.write_spacemodel()
+
+        # with open(self.tmppath + "spacemodel" + unique_file_id + ".dot", "w") as text_file:
+            # text_file.write(self.to_dot())
+        with open(self.tmppath + "valuations" + unique_file_id + ".csv", "w") as text_file:
             text_file.write(self.topo_csv())
         self.bgkripke_file()
 
+
+    def write_spacemodel(self):
+        with open(self.tmppath + "spacemodel" + ".dot", "w") as text_file:
+            text_file.write(self.to_dot())
+
     def invoke_topochecker(self, spatialprop, topostatements=[]):
 
-        if not os.path.isfile(self.tmppath + "spacemodel" + self.file_id + ".dot"):
-            self.write_topo_files()
+        unique_file_id = self.unique_file_id()
+        self.write_topo_files(unique_file_id)
 
         current_invokation_id = "_" + str(uuid.uuid1())
+        # self.last_invocation_id = current_invokation_id
         self.last_spatialprop = spatialprop
         # TODO: spatialprop should be a list of props, where we assign some
         # colours
-        invoke_string = """Kripke "bgkripke.dot" Space "spacemodel""" + \
-            self.file_id + """.dot" Eval "valuations""" + self.file_id + """.csv";\n"""
+
+
+        # invoke_string = """Kripke "bgkripke.dot" Space "spacemodel""" + \
+            # unique_file_id + """.dot" Eval "valuations""" + unique_file_id + """.csv";\n"""
+        invoke_string = """Kripke "bgkripke.dot" Space "spacemodel.dot" Eval "valuations""" + unique_file_id + """.csv";\n"""
 
         for statement in topostatements + self.default_topostatements:
             invoke_string += statement + '\n'
 
         invoke_string += """\nCheck "0xA0DB8E" """ + spatialprop  + ";"
 
-        with open(self.tmppath + "input" + self.file_id + current_invokation_id + ".topochecker", "w") as text_file:
+        with open(self.tmppath + "input" + unique_file_id + current_invokation_id + ".topochecker", "w") as text_file:
             text_file.write(invoke_string)
 
         try:
-            os.chmod(self.path_to_executable, 0777)
             out = subprocess.check_output(
-                [self.path_to_executable, self.tmppath + "input" + self.file_id + current_invokation_id + ".topochecker", self.tmppath + "sp" + self.file_id + current_invokation_id], stderr=subprocess.STDOUT)
+                [self.path_to_executable, self.tmppath + "input" + unique_file_id + current_invokation_id + ".topochecker", self.tmppath + "sp" + unique_file_id + current_invokation_id], stderr=subprocess.STDOUT)
         except subprocess.CalledProcessError, e:
             raise TopocheckerException(e)
 
         colored_lines = [line for line in open(
-            self.tmppath + "sp" + self.file_id + current_invokation_id + "-0.dot") if 'color' in line]
+            self.tmppath + "sp" + unique_file_id + current_invokation_id + "-0.dot") if 'color' in line]
         colour_results = []
 
         for line in colored_lines:
@@ -275,18 +283,19 @@ class SpacePredicatedGraph(DiGraph):
 
         if not DEBUG_INVOKER:
             # remove results file
-            os.remove(self.tmppath + "sp" + self.file_id +
+            os.remove(self.tmppath + "sp" + unique_file_id +
                       current_invokation_id + "-0.dot")
-            os.remove(self.tmppath + "valuations" + self.file_id + ".csv")
-            os.remove(self.tmppath + "spacemodel" + self.file_id + ".dot")
-            os.remove(self.tmppath + "input" + self.file_id +
+            os.remove(self.tmppath + "valuations" + unique_file_id + ".csv")
+            # os.remove(self.tmppath + "spacemodel" + unique_file_id + ".dot")
+            os.remove(self.tmppath + "input" + unique_file_id +
                       current_invokation_id + ".topochecker")
         return colour_results
 
     def populate_closurespace_presence_map(self,presence_map):
         """ given a closure space without taxis inside, read a map of {poi_ident:[taxi_id1..]} and put the taxis
             in the respective positions on the closure space   """
-        for poi_ident, taxis in presence_map.items():
+        found=False
+        for poi_ident, taxis in presence_map.items():    
             # print poi_ident,taxis
             for taxi_ident in taxis:
                 for node in self.nodes():
@@ -298,8 +307,13 @@ class SpacePredicatedGraph(DiGraph):
                             # delete also one 'taxi' predicate
                             self.predicates[node].remove('taxi')
                             # print 'Tid'+str(taxi_ident)
-        for poi_ident, taxis in presence_map.items():
+                            found=True
+                            break
+                    if found==True:
+                        found=False
+                        break
+        for poi_ident, taxis in presence_map.items():    
             for taxi_ident in taxis:
                 self.predicates[poi_ident].append('taxi')
-                self.predicates[poi_ident].append('Tid'+str(taxi_ident))
+                self.predicates[poi_ident].append('Tid'+str(taxi_ident))  
         return self

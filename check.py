@@ -1,9 +1,8 @@
 from spacegraph import *
 
-from shutil import copyfile, copytree
+
 from flask import Flask, request
 from flask_restful import Resource, Api
-import os
 import time
 import json
 import urllib2
@@ -11,20 +10,28 @@ try:
     import cPickle as pickle
 except:
     import pickle
+import json
+try:
+    from tornado.wsgi import WSGIContainer
+    from tornado.httpserver import HTTPServer
+    from tornado.ioloop import IOLoop
+    tornado_imported = True
+except ImportError:
+    tornado_imported=False
 
 
 # space = SpacePredicatedGraph(closurefile="../chinadataplay/networks_generated/full-network-trajects10357searchrange20bglimitpresences1poicount11741-closurespace.gml")
-copyfile("./mini-closurespace.gml", "/tmp/mini-closurespace.gml")
-copyfile("./topochecker", "/tmp/topochecker")
-if not os.path.isdir('/tmp/topotmp'):
-    copytree("./topotmp","/tmp/topotmp")
+# space = SpacePredicatedGraph(closurefile="./mini-closurespace.gml")
+# space = SpacePredicatedGraph(closurefile="full4mouseia-closurespace.gml")
+# space = SpacePredicatedGraph(closurefile="full4mouseia-closurespace-d10.gml")
+# space = SpacePredicatedGraph(closurefile="full4mouseia-closurespace-d5.gml")
 
-#space = SpacePredicatedGraph(closurefile="./mini-closurespace.gml")
-space = SpacePredicatedGraph(closurefile="/tmp/mini-closurespace.gml")
+
+config = json.load(open('config_setup.json'))
+
 
 def pickle_clspace(clspace, filename):
-    copyfile(filename,"/tmp/" + filename)
-    with open("/tmp/" + filename, 'wb') as output:
+    with open(filename, 'wb') as output:
         pickle.dump(clspace, output, pickle.HIGHEST_PROTOCOL)
 
 
@@ -35,28 +42,22 @@ def unpickle_clspace(filename):
     return clspace
 
 # pickle_clspace(space,"clspace.pickle")
-# space = unpickle_clspace("clspace.pickle")
+space = unpickle_clspace("clspace.pickle")
+
+print 'Loaded closurespace: points', len(space),'edges', space.number_of_edges()
 
 class Checker(Resource):
     def get(self, spatialprop):
         start_time = time.time()
-
         global space
-
-        #LOCAL
-        #current_space = json.load(urllib2.urlopen("http://localhost:5001/space"))
-        #current_space = json.load(urllib2.urlopen("http://10.79.11.36:5001/space"))
-
-        #EC2 Server
-        current_space = json.load(urllib2.urlopen("http://52.27.220.158:5001/space"))
-        #print 'got taxi positions',len(current_space),
+        current_space = json.load(urllib2.urlopen(config['state_keeper_serverport']+"/space"))
+        print 'got taxi positions',len(current_space),
         # populate with current space
         space.populate_closurespace_presence_map(current_space)
-        #print 'clpoints satisfying spatialprop', len(space.invoke_topochecker(spatialprop=spatialprop)),
-        print spatialprop
+        print 'clpoints satisfying spatialprop', len(space.invoke_topochecker(spatialprop=spatialprop)),
         result = {'data': len(space.invoke_topochecker(spatialprop=spatialprop))}
         end_time = time.time()
-        #print 'eval took', "{0:.2f}".format(end_time - start_time), "sec"
+        print 'eval took', "{0:.2f}".format(end_time - start_time), "sec"
         return result
 
 app = Flask(__name__)
@@ -71,11 +72,14 @@ api.add_resource(HealthCheck, '/check')
 
 
 if __name__ == '__main__':
-    # spatialprop = " (N [TRANSPORTBUSSTOP])"
-    # print 'clpoints satisfying spatialprop', len(space.invoke_topochecker(spatialprop=spatialprop))
 
-    # or through the api:
-    # http://localhost:5000/check/(N%20[TRANSPORTBUSSTOP])
+    if tornado_imported:
+        print 'Spawning tornado.'
 
-    # REMOTE
-     app.run(host='0.0.0.0')
+        server = HTTPServer(WSGIContainer(app))
+        server.bind(5000)
+        server.start(4)  
+        IOLoop.current().start()
+    else:
+        print 'Spawning flask'
+        app.run(host= '0.0.0.0',port=5000)
