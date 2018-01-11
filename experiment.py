@@ -96,7 +96,7 @@ class RequestTask(object):
         resp = requests.post(config['state_keeper_serverport'] +
                              '/update', json=self.jsontask)
         resp = requests.get(config['checker_serverport'] +
-                            '/check/(N%20[TRANSPORTBUSSTOP])')
+                            '/check/%28N%20%5BTRANSPORTBUSSTOP%5D%29')
         if resp.status_code == 500:
             print 'RequestTask got 500.'
             return -1
@@ -115,14 +115,14 @@ def subtractSecs(fulldate, secs):
     return fulldate
 
 if __name__ == '__main__':
-    """ NUM_PROCESSES will start making requests based on a limit of MAX_LIMIT_TAXIPRESENCES 
+    """ NUM_PROCESSES will start making requests based on a limit of MAX_LIMIT_TAXIPRESENCES
     starting from BEIJING_STARTDATETIME for seconds specified in BEIJING_TIMELEN. Time may be adjusted by TIME_MULTIPLIER.
      Tuesday "2008-02-05 11:00:16" is the lunchtime request peak. """
 
     NUM_PROCESSES = 100
     TIMEOUT = 30
     TIME_MULTIPLIER = 2 # should be an int
-    MAX_LIMIT_TAXIPRESENCES = 1000	
+    MAX_LIMIT_TAXIPRESENCES = 10
     BEIJING_TIMELEN = 3600 * 1  # one hour
     BEIJING_STARTDATETIME = "2008-02-05 11:00:16"
 
@@ -141,7 +141,7 @@ if __name__ == '__main__':
     print 'Setting initial positions from taxipresences since', subtractSecs(start_timeslot, BEIJING_TIMELEN), 'progress left:'
     for taxipresence in initial_positions:
         init_left -= 1
-        resp = requests.post('http://127.0.0.1:5001/update',
+        resp = requests.post(config['state_keeper_serverport'] + '/update',
                              json={taxipresence.poi_point.ident: taxipresence.taxi_ident})
         if init_left % 33 == 0:
             print init_left, '..',

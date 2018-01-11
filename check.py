@@ -1,8 +1,9 @@
 from spacegraph import *
 
-
+from shutil import copyfile, copytree
 from flask import Flask, request
 from flask_restful import Resource, Api
+import os
 import time
 import json
 import urllib2
@@ -29,9 +30,15 @@ except ImportError:
 
 config = json.load(open('config_setup.json'))
 
+#Copying to tmp to run in lambda because you can only write on TMP
+copyfile("./topochecker", "/tmp/topochecker")
+copyfile("./clspace.pickle", "/tmp/clspace.pickle")
+if not os.path.isdir('/tmp/topotmp'):
+    copytree("./topotmp","/tmp/topotmp")
 
 def pickle_clspace(clspace, filename):
-    with open(filename, 'wb') as output:
+    copyfile(filename,"/tmp/" + filename)
+    with open("/tmp/" + filename, 'wb') as output:
         pickle.dump(clspace, output, pickle.HIGHEST_PROTOCOL)
 
 
@@ -42,7 +49,7 @@ def unpickle_clspace(filename):
     return clspace
 
 # pickle_clspace(space,"clspace.pickle")
-space = unpickle_clspace("clspace.pickle")
+space = unpickle_clspace("/tmp/clspace.pickle")
 
 print 'Loaded closurespace: points', len(space),'edges', space.number_of_edges()
 
@@ -78,7 +85,7 @@ if __name__ == '__main__':
 
         server = HTTPServer(WSGIContainer(app))
         server.bind(5000)
-        server.start(4)  
+        server.start(4)
         IOLoop.current().start()
     else:
         print 'Spawning flask'

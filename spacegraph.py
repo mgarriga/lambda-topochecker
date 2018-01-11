@@ -67,11 +67,11 @@ class SpacePredicatedGraph(DiGraph):
 
         # make sure topochecker is there. otherwise raise exception
         # self.g = g # SpacePredicatedGraph instance
-        self.path_to_executable = "./topochecker"
+        self.path_to_executable = "/tmp/topochecker"
 
         # use tmpfs on linux to be faster
         # self.tmppath = "/dev/shm/topotmp/"
-        self.tmppath = "./topotmp/"
+        self.tmppath = "/tmp/topotmp/"
 
         # make sure the directory exists
         try:
@@ -81,7 +81,7 @@ class SpacePredicatedGraph(DiGraph):
                 raise
 
         self.remove_isolates()
-                
+
     def has_predicate(self, n, p):
         for term in self.predicates[n]:
             if term == p:
@@ -178,7 +178,7 @@ class SpacePredicatedGraph(DiGraph):
         return dotstring
 
     def remove_isolates(self):
-        """ workaround for bug in topochecker: topochecker will fail if there are evaluation 
+        """ workaround for bug in topochecker: topochecker will fail if there are evaluation
         declarations of closure points that are not found in the spacemodel."""
         isolate_nodes = list(isolates(self))
         if isolate_nodes:
@@ -224,7 +224,7 @@ class SpacePredicatedGraph(DiGraph):
                 text_file.write("digraph{\n0;\n}")
 
     def write_topo_files(self,unique_file_id):
-        """ write files before invoking topochecker (which will happen by TopoInvoker). 
+        """ write files before invoking topochecker (which will happen by TopoInvoker).
         We need this here to keep the SpacePredicatedGraph on states."""
 
         if not os.path.isfile(self.tmppath + "spacemodel" + ".dot"):
@@ -232,6 +232,9 @@ class SpacePredicatedGraph(DiGraph):
 
         # with open(self.tmppath + "spacemodel" + unique_file_id + ".dot", "w") as text_file:
             # text_file.write(self.to_dot())
+        #print self.tmppath
+        self.tmppath = '/tmp/topotmp/'
+        #print self.tmppath
         with open(self.tmppath + "valuations" + unique_file_id + ".csv", "w") as text_file:
             text_file.write(self.topo_csv())
         self.bgkripke_file()
@@ -266,6 +269,8 @@ class SpacePredicatedGraph(DiGraph):
             text_file.write(invoke_string)
 
         try:
+            self.path_to_executable = "/tmp/topochecker"
+            os.chmod(self.path_to_executable, 0777)
             out = subprocess.check_output(
                 [self.path_to_executable, self.tmppath + "input" + unique_file_id + current_invokation_id + ".topochecker", self.tmppath + "sp" + unique_file_id + current_invokation_id], stderr=subprocess.STDOUT)
         except subprocess.CalledProcessError, e:
@@ -295,7 +300,7 @@ class SpacePredicatedGraph(DiGraph):
         """ given a closure space without taxis inside, read a map of {poi_ident:[taxi_id1..]} and put the taxis
             in the respective positions on the closure space   """
         found=False
-        for poi_ident, taxis in presence_map.items():    
+        for poi_ident, taxis in presence_map.items():
             # print poi_ident,taxis
             for taxi_ident in taxis:
                 for node in self.nodes():
@@ -312,8 +317,8 @@ class SpacePredicatedGraph(DiGraph):
                     if found==True:
                         found=False
                         break
-        for poi_ident, taxis in presence_map.items():    
+        for poi_ident, taxis in presence_map.items():
             for taxi_ident in taxis:
                 self.predicates[poi_ident].append('taxi')
-                self.predicates[poi_ident].append('Tid'+str(taxi_ident))  
+                self.predicates[poi_ident].append('Tid'+str(taxi_ident))
         return self

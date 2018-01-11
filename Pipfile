@@ -7,6 +7,7 @@ name = "pypi"
 
 [dev-packages]
 
+awscli = "*"
 
 
 [packages]
@@ -29,8 +30,9 @@ python-dateutil = "==2.6.1"
 pytz = "==2017.3"
 requests = "==2.18.4"
 "urllib3" = "==1.22"
-werkzeug = "==0.12.2"
+werkzeug = "*"
 zappa = "*"
+tornado = "*"
 
 
 [requires]

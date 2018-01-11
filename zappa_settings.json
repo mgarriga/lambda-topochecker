@@ -2,9 +2,10 @@
     "dev": {
         "app_function": "check.app", 
         "aws_region": "us-west-2", 
-        "profile_name": "default", 
-        "project_name": "mstopolambda-re", 
+        "profile_name": "martin", 
+        "project_name": "lambda-topochec", 
         "runtime": "python2.7", 
-        "s3_bucket": "zappa-topochecker"
+        "s3_bucket": "zappa-o9yker44v",
+	"memory_size": "1536"
     }
 }
