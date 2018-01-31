@@ -93,10 +93,13 @@ class RequestTask(object):
 
     def __call__(self):
         start_time = time.time()
+        #print 'hola'
+        print self.jsontask
         resp = requests.post(config['state_keeper_serverport'] +
                              '/update', json=self.jsontask)
         resp = requests.get(config['checker_serverport'] +
-                            '/check/%28N%20%5BTRANSPORTBUSSTOP%5D%29')
+        '/check/R%28%5Btaxi%5D%2C%28%5BTRANSPORTSUBWAY%5D%20%7C%20%5BTRANSPORTBUSSTOP%5D%29%2C%5BFOODBAR%5D%29%20%26%20%28N%20%5BTRANSPORTFUEL%5D%29%20')
+        #                    '/check/%28N%20%5BTRANSPORTBUSSTOP%5D%29')
         if resp.status_code == 500:
             print 'RequestTask got 500.'
             return -1
@@ -119,10 +122,18 @@ if __name__ == '__main__':
     starting from BEIJING_STARTDATETIME for seconds specified in BEIJING_TIMELEN. Time may be adjusted by TIME_MULTIPLIER.
      Tuesday "2008-02-05 11:00:16" is the lunchtime request peak. """
 
+    # NUM_PROCESSES = 100
+    # TIMEOUT = 30
+    # TIME_MULTIPLIER = 5 # should be an int
+    # MAX_LIMIT_TAXIPRESENCES = 10
+    # BEIJING_TIMELEN = 3600 * 1  # one hour
+    # BEIJING_STARTDATETIME = "2008-02-05 11:00:16"
+
+    # Experimental setup OK
     NUM_PROCESSES = 100
     TIMEOUT = 30
-    TIME_MULTIPLIER = 2 # should be an int
-    MAX_LIMIT_TAXIPRESENCES = 10
+    TIME_MULTIPLIER = 10 # should be an int
+    MAX_LIMIT_TAXIPRESENCES = 1000
     BEIJING_TIMELEN = 3600 * 1  # one hour
     BEIJING_STARTDATETIME = "2008-02-05 11:00:16"
 

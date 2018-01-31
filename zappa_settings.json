@@ -6,6 +6,6 @@
         "project_name": "lambda-topochec", 
         "runtime": "python2.7", 
         "s3_bucket": "zappa-o9yker44v",
-	"memory_size": "1536"
+	"memory_size": 1536
     }
 }
