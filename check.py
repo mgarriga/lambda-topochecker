@@ -65,8 +65,8 @@ class Checker(Resource):
         result = {'data': len(space.invoke_topochecker(spatialprop=spatialprop))}
         end_time = time.time()
         print 'eval took', "{0:.2f}".format(end_time - start_time), "sec"
-        return result
-
+        return {"result":result, "mc_time":end_time - start_time}
+        
 app = Flask(__name__)
 api = Api(app)
 api.add_resource(Checker, '/check/<string:spatialprop>')

@@ -19,11 +19,10 @@ except:
 import multiprocessing
 import Queue
 import json
+import argparse
 
 
-config = json.load(open('config_setup.json'))
 
-print 'Loaded current config', config
 # db.createUser({user: 'china',pwd: 'chairmanmaoiswatching', roles: [{ role: 'readWrite', db:'chinadb'}]})
 # mongo -u china -p chairmanmaoiswatching  128.199.57.234:27017/chinadb
 
@@ -32,10 +31,7 @@ print 'Loaded current config', config
 # 	host='mongodb://china:chairmanmaoiswatching@128.199.57.234/chinadb'
 # )
 
-db = connect(
-    db=config['db'],
-    host=config['dbhost']
-)
+
 
 # db = connect('chinadb')
 
@@ -93,20 +89,17 @@ class RequestTask(object):
 
     def __call__(self):
         start_time = time.time()
-        #print 'hola'
-        print self.jsontask
         resp = requests.post(config['state_keeper_serverport'] +
                              '/update', json=self.jsontask)
         resp = requests.get(config['checker_serverport'] +
-        '/check/R%28%5Btaxi%5D%2C%28%5BTRANSPORTSUBWAY%5D%20%7C%20%5BTRANSPORTBUSSTOP%5D%29%2C%5BFOODBAR%5D%29%20%26%20%28N%20%5BTRANSPORTFUEL%5D%29%20')
-        #                    '/check/%28N%20%5BTRANSPORTBUSSTOP%5D%29')
+                            '/check/(N%20[TRANSPORTBUSSTOP])')
         if resp.status_code == 500:
             print 'RequestTask got 500.'
             return -1
         end_time = time.time()
-        print 'requesttask: took', "{0:.2f}".format(end_time - start_time), "sec"
-        return {self.presence_datetime: end_time - start_time}
-
+        wait_time = (end_time - start_time) - resp.json()['mc_time']
+        print 'requesttask: took', "{0:.2f}".format(end_time - start_time), "sec", '- waited',"{0:.2f}".format(wait_time) 
+        return { "wait_time":wait_time, "mc_time":resp.json()['mc_time'], "total_time":{self.presence_datetime: end_time - start_time}}
 
 def addSecs(fulldate, secs):
     fulldate = fulldate + timedelta(seconds=secs)
@@ -130,12 +123,32 @@ if __name__ == '__main__':
     # BEIJING_STARTDATETIME = "2008-02-05 11:00:16"
 
     # Experimental setup OK
-    NUM_PROCESSES = 100
+    NUM_PROCESSES = 300
     TIMEOUT = 30
     TIME_MULTIPLIER = 10 # should be an int
-    MAX_LIMIT_TAXIPRESENCES = 1000
+    MAX_LIMIT_TAXIPRESENCES = 4
     BEIJING_TIMELEN = 3600 * 1  # one hour
     BEIJING_STARTDATETIME = "2008-02-05 11:00:16"
+
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("config_file")
+    args = parser.parse_args()
+    print args.config_file
+
+    # config = json.load(open('config_setup.json'))
+    config = json.load(open(args.config_file))
+
+    print 'Loaded current config', config
+
+    db = connect(
+        db=config['db'],
+        host=config['dbhost']
+    )
+
+    print 'Resetting state keeeper.'
+    requests.get(config['state_keeper_serverport']+"/empty")
+
 
     # start of dataset, for debugging
     # start_timeslot = TaxiPresence.objects.order_by('presence_datetime')[0].presence_datetime
@@ -198,11 +211,23 @@ if __name__ == '__main__':
     lr = []
     while not results.empty():
         lr.append(results.get(block=True, timeout=TIMEOUT))
-    print 'requests len', len(lr)
 
-    # lr is [{presence_init_time: request total time}]
-    onlytimes = [[v for k, v in listitem.iteritems()][0] for listitem in lr]
+    total_times = [i['total_time'] for i in lr]
+    mc_times = [i['mc_time'] for i in lr]
+    wait_times = [i['wait_time'] for i in lr]
 
+    print 'Process total times:'
+    onlytimes = [[v for k, v in listitem.iteritems()][0] for listitem in total_times]
     print 'max', max(onlytimes)
     print 'min', min(onlytimes)
     print 'avg', float(sum(onlytimes)) / max(len(onlytimes), 1)
+
+    print 'Process checking times:'
+    print 'max', max(mc_times)
+    print 'min', min(mc_times)
+    print 'avg', float(sum(mc_times)) / max(len(mc_times), 1)
+
+    print 'Process wait times:'
+    print 'max', max(wait_times)
+    print 'min', min(wait_times)
+    print 'avg', float(sum(wait_times)) / max(len(wait_times), 1)
