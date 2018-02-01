@@ -66,7 +66,7 @@ class Checker(Resource):
         end_time = time.time()
         print 'eval took', "{0:.2f}".format(end_time - start_time), "sec"
         return {"result":result, "mc_time":end_time - start_time}
-        
+
 app = Flask(__name__)
 api = Api(app)
 api.add_resource(Checker, '/check/<string:spatialprop>')
@@ -85,7 +85,7 @@ if __name__ == '__main__':
 
         server = HTTPServer(WSGIContainer(app))
         server.bind(5000)
-        server.start(4)
+        server.start(1)
         IOLoop.current().start()
     else:
         print 'Spawning flask'

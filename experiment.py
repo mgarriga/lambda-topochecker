@@ -92,13 +92,14 @@ class RequestTask(object):
         resp = requests.post(config['state_keeper_serverport'] +
                              '/update', json=self.jsontask)
         resp = requests.get(config['checker_serverport'] +
-                            '/check/(N%20[TRANSPORTBUSSTOP])')
+        '/check/R%28%5Btaxi%5D%2C%28%5BTRANSPORTSUBWAY%5D%20%7C%20%5BTRANSPORTBUSSTOP%5D%29%2C%5BFOODBAR%5D%29%20%26%20%28N%20%5BTRANSPORTFUEL%5D%29%20')
+        #                    '/check/%28N%20%5BTRANSPORTBUSSTOP%5D%29')
         if resp.status_code == 500:
             print 'RequestTask got 500.'
             return -1
         end_time = time.time()
         wait_time = (end_time - start_time) - resp.json()['mc_time']
-        print 'requesttask: took', "{0:.2f}".format(end_time - start_time), "sec", '- waited',"{0:.2f}".format(wait_time) 
+        print 'requesttask: took', "{0:.2f}".format(end_time - start_time), "sec", '- waited',"{0:.2f}".format(wait_time)
         return { "wait_time":wait_time, "mc_time":resp.json()['mc_time'], "total_time":{self.presence_datetime: end_time - start_time}}
 
 def addSecs(fulldate, secs):
