@@ -98,9 +98,9 @@ class RequestTask(object):
             print 'RequestTask got 500.'
             return -1
         end_time = time.time()
-        wait_time = (end_time - start_time) - resp.json()['mc_time']
+        wait_time = (end_time - start_time) - resp.json()[u'mc_time']
         print 'requesttask: took', "{0:.2f}".format(end_time - start_time), "sec", '- waited',"{0:.2f}".format(wait_time)
-        return { "wait_time":wait_time, "mc_time":resp.json()['mc_time'], "total_time":{self.presence_datetime: end_time - start_time}}
+        return { "wait_time":wait_time, "mc_time":resp.json()[u'mc_time'], "total_time":{self.presence_datetime: end_time - start_time}}
 
 def addSecs(fulldate, secs):
     fulldate = fulldate + timedelta(seconds=secs)
@@ -127,7 +127,7 @@ if __name__ == '__main__':
     NUM_PROCESSES = 300
     TIMEOUT = 30
     TIME_MULTIPLIER = 10 # should be an int
-    MAX_LIMIT_TAXIPRESENCES = 4
+    MAX_LIMIT_TAXIPRESENCES = 10
     BEIJING_TIMELEN = 3600 * 1  # one hour
     BEIJING_STARTDATETIME = "2008-02-05 11:00:16"
 
