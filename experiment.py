@@ -21,7 +21,7 @@ import Queue
 import json
 import argparse
 
-
+from numpy import median
 
 # db.createUser({user: 'china',pwd: 'chairmanmaoiswatching', roles: [{ role: 'readWrite', db:'chinadb'}]})
 # mongo -u china -p chairmanmaoiswatching  128.199.57.234:27017/chinadb
@@ -35,6 +35,7 @@ import argparse
 
 # db = connect('chinadb')
 
+errcount = 0
 
 class POI(Document):
     name = StringField()
@@ -88,19 +89,31 @@ class RequestTask(object):
         del self.jsontask['presence_init_time']
 
     def __call__(self):
+        global errcount
         start_time = time.time()
         resp = requests.post(config['state_keeper_serverport'] +
                              '/update', json=self.jsontask)
         resp = requests.get(config['checker_serverport'] +
         '/check/R%28%5Btaxi%5D%2C%28%5BTRANSPORTSUBWAY%5D%20%7C%20%5BTRANSPORTBUSSTOP%5D%29%2C%5BFOODBAR%5D%29%20%26%20%28N%20%5BTRANSPORTFUEL%5D%29%20')
         #                    '/check/%28N%20%5BTRANSPORTBUSSTOP%5D%29')
-        if resp.status_code == 500:
-            print 'RequestTask got 500.'
-            return -1
+        if resp.status_code >= 500:
+            print 'RequestTask got ' + str(resp.status_code)
+            # return -1
+            resp_json = json.loads('{"mc_time":1}')
+        #print resp
+        # TODO here the load balancer and api gateway are returning 504, maybe they can be handled similarly
+        #if not u'mc_time' in resp.json():
+        #    print 'PROBLEMA:'
+        #    print resp.json()
+        #    resp = json.loads('{"mc_time":1}')
+            errcount = errcount + 1
+        else:
+            resp_json = resp.json()
+        print resp_json
         end_time = time.time()
-        wait_time = (end_time - start_time) - resp.json()[u'mc_time']
+        wait_time = (end_time - start_time) - resp_json[u'mc_time']
         print 'requesttask: took', "{0:.2f}".format(end_time - start_time), "sec", '- waited',"{0:.2f}".format(wait_time)
-        return { "wait_time":wait_time, "mc_time":resp.json()[u'mc_time'], "total_time":{self.presence_datetime: end_time - start_time}}
+        return { "wait_time":wait_time, "mc_time":resp_json[u'mc_time'], "total_time":{self.presence_datetime: end_time - start_time}, "errcount":errcount}
 
 def addSecs(fulldate, secs):
     fulldate = fulldate + timedelta(seconds=secs)
@@ -122,12 +135,11 @@ if __name__ == '__main__':
     # MAX_LIMIT_TAXIPRESENCES = 10
     # BEIJING_TIMELEN = 3600 * 1  # one hour
     # BEIJING_STARTDATETIME = "2008-02-05 11:00:16"
-
     # Experimental setup OK
     NUM_PROCESSES = 300
     TIMEOUT = 30
-    TIME_MULTIPLIER = 10 # should be an int
-    MAX_LIMIT_TAXIPRESENCES = 10
+    TIME_MULTIPLIER = 20 # should be an int
+    MAX_LIMIT_TAXIPRESENCES = 1000
     BEIJING_TIMELEN = 3600 * 1  # one hour
     BEIJING_STARTDATETIME = "2008-02-05 11:00:16"
 
@@ -136,7 +148,6 @@ if __name__ == '__main__':
     parser.add_argument("config_file")
     args = parser.parse_args()
     print args.config_file
-
     # config = json.load(open('config_setup.json'))
     config = json.load(open(args.config_file))
 
@@ -216,19 +227,24 @@ if __name__ == '__main__':
     total_times = [i['total_time'] for i in lr]
     mc_times = [i['mc_time'] for i in lr]
     wait_times = [i['wait_time'] for i in lr]
+    errors = [i['errcount'] for i in lr]
 
     print 'Process total times:'
     onlytimes = [[v for k, v in listitem.iteritems()][0] for listitem in total_times]
     print 'max', max(onlytimes)
     print 'min', min(onlytimes)
     print 'avg', float(sum(onlytimes)) / max(len(onlytimes), 1)
+    print 'median', median(onlytimes)
 
     print 'Process checking times:'
     print 'max', max(mc_times)
     print 'min', min(mc_times)
     print 'avg', float(sum(mc_times)) / max(len(mc_times), 1)
+    print 'median', median(onlytimes)
 
     print 'Process wait times:'
     print 'max', max(wait_times)
     print 'min', min(wait_times)
     print 'avg', float(sum(wait_times)) / max(len(wait_times), 1)
+    print 'median', median(onlytimes)
+    print 'Number of errors: ', sum(errors)

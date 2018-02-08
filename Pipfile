@@ -33,6 +33,7 @@ requests = "==2.18.4"
 werkzeug = "*"
 zappa = "*"
 tornado = "*"
+numpy = "==1.14.0"
 
 
 [requires]
