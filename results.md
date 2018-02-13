@@ -22,6 +22,7 @@ NUM_PROCESSES = 100
 
 ## lambda
 cost (approx): number of calls * avg seconds per call * $ per 1000 miliseconds with 1536 memory in lambda
+(max memory used in the range of 300 -- 400 so the config could be adjusted... but this would affect the number of vCPUs)
 
 ### Experiment v1
 
@@ -121,16 +122,17 @@ max 34.9515209198
 min 7.75299215317
 avg 18.953984548
 median 17.308190465
+
 Process checking times:
 max 28.8671591282
 min 1
 avg 14.7619543142
-median 17.308190465
+
 Process wait times:
 max 33.9515209198
 min 0.702660799026
 avg 4.19203023383
-median 17.308190465
+
 Number of errors:  67
 
 * time_mult 10
@@ -140,16 +142,17 @@ max 30.2915019989
 min 6.533618927
 avg 20.2013915217
 median 19.6651741266
+
 Process checking times:
 max 28.9538729191
 min 1
 avg 15.1260486855
-median 19.6651741266
+
 Process wait times:
 max 29.2915019989
 min 0.687526226044
 avg 5.07534283622
-median 19.6651741266
+
 Number of errors:  89
 
 * time_mult 15
@@ -158,30 +161,35 @@ max 30.3206238747
 min 10.2256159782
 avg 21.8692738872
 median 22.1156170368
+
 Process checking times:
 max 28.9224588871
 min 1
 avg 15.3014224413
 median 22.1156170368
+
 Process wait times:
 max 29.3206238747
 min 0.70365691185
 avg 6.56785144587
-median 22.1156170368
 Number of errors:  124
 
 * time mult 20
+
+Process total times:
+median 25.8362128735
 
 Process checking times:
 max 28.8981289864
 min 1
 avg 14.604147533
 median 25.8362128735
+
 Process wait times:
 max 29.3464591503
 min 0.717052936554
 avg 9.48029865551
-median 25.8362128735
+
 Number of errors:  235
 
 * time mult 30
@@ -191,16 +199,17 @@ max 30.3122909069
 min 10.3466999531
 avg 24.960494148
 median 28.8509440422
+
 Process checking times:
 max 28.9702630043
 min 1
 avg 11.5299053924
-median 28.8509440422
+
 Process wait times:
 max 29.3122909069
 min 0.743782997131
 avg 13.4305887556
-median 28.8509440422
+
 Number of errors:  335
 
 * time mult 40
@@ -210,16 +219,17 @@ max 30.4740028381
 min 6.80550003052
 avg 23.9449834871
 median 27.4247710705
+
 Process checking times:
 max 28.9559519291
 min 1
 avg 10.2797317222
-median 27.4247710705
+
 Process wait times:
 max 29.4740028381
 min 0.687190055847
 avg 13.6652517649
-median 27.4247710705
+
 Number of errors:  302
 
 
@@ -241,33 +251,34 @@ max 65.8290259838
 min 10.5190088749
 avg 52.2841121855
 median 61.0214465857
+
 Process checking times:
 max 28.7686941624
 min 1
 avg 4.77198692948
-median 61.0214465857
+
 Process wait times:
 max 64.8290259838
 min 0.83674120903
 avg 47.512125256
-median 61.0214465857
 Number of errors:  475
+
 
 Process total times:
 max 62.203122139
 min 6.98474812508
 avg 54.8065455694
 median 61.034273982
+
 Process checking times:
 max 26.5238289833
 min 1
 avg 3.3148269443
-median 61.034273982
+
 Process wait times:
 max 61.203122139
 min 0.821813821793
 avg 51.4917186251
-median 61.034273982
 Number of errors:  533
 
 
@@ -276,16 +287,16 @@ max 66.0883948803
 min 1.01836490631
 avg 57.8627860903
 median 61.0314071178
+
 Process checking times:
 max 26.3251690865
 min 1
 avg 2.07949230767
-median 61.0314071178
+
 Process wait times:
 max 65.0883948803
 min 0.018364906311
 avg 55.7832937826
-median 61.0314071178
 Number of errors:  642
 
 Process total times:
@@ -293,20 +304,20 @@ max 61.1026849747
 min 7.60310602188
 avg 57.5767112926
 median 61.0349448919
+
 Process checking times:
 max 16.059789896
 min 1
 avg 2.381725652
-median 61.0349448919
+
 Process wait times:
 max 60.1026849747
 min 0.831492900848
 avg 55.1949856406
-median 61.0349448919
 Number of errors:  632
 
 ## super big instance:
-72 cores!
+64 cores!
 Cost: 2300 eur per month with the instance 100% uptime
 
 __Obs__: With TIME_MULTIPLIER=20 all cores were at 100%. With  TIME_MULTIPLIER=10, the results were the following (it still outperforms lambda with this config):

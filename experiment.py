@@ -240,11 +240,11 @@ if __name__ == '__main__':
     print 'max', max(mc_times)
     print 'min', min(mc_times)
     print 'avg', float(sum(mc_times)) / max(len(mc_times), 1)
-    print 'median', median(onlytimes)
+    print 'median', median(mc_times)
 
     print 'Process wait times:'
     print 'max', max(wait_times)
     print 'min', min(wait_times)
     print 'avg', float(sum(wait_times)) / max(len(wait_times), 1)
-    print 'median', median(onlytimes)
+    print 'median', median(wait_times)
     print 'Number of errors: ', sum(errors)
