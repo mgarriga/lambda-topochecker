@@ -183,7 +183,6 @@ Process checking times:
 max 28.8981289864
 min 1
 avg 14.604147533
-median 25.8362128735
 
 Process wait times:
 max 29.3464591503
@@ -263,7 +262,7 @@ min 0.83674120903
 avg 47.512125256
 Number of errors:  475
 
-
+* tm 15
 Process total times:
 max 62.203122139
 min 6.98474812508
@@ -281,6 +280,7 @@ min 0.821813821793
 avg 51.4917186251
 Number of errors:  533
 
+* tm 20
 
 Process total times:
 max 66.0883948803
@@ -298,6 +298,8 @@ max 65.0883948803
 min 0.018364906311
 avg 55.7832937826
 Number of errors:  642
+
+* tm 30
 
 Process total times:
 max 61.1026849747

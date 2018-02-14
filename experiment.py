@@ -106,9 +106,10 @@ class RequestTask(object):
         #    print 'PROBLEMA:'
         #    print resp.json()
         #    resp = json.loads('{"mc_time":1}')
-            errcount = errcount + 1
+            errcount = 1
         else:
             resp_json = resp.json()
+            errcount = 0
         print resp_json
         end_time = time.time()
         wait_time = (end_time - start_time) - resp_json[u'mc_time']
@@ -137,8 +138,8 @@ if __name__ == '__main__':
     # BEIJING_STARTDATETIME = "2008-02-05 11:00:16"
     # Experimental setup OK
     NUM_PROCESSES = 300
-    TIMEOUT = 30
-    TIME_MULTIPLIER = 20 # should be an int
+    TIMEOUT = 120
+    TIME_MULTIPLIER = 10 # should be an int
     MAX_LIMIT_TAXIPRESENCES = 1000
     BEIJING_TIMELEN = 3600 * 1  # one hour
     BEIJING_STARTDATETIME = "2008-02-05 11:00:16"
