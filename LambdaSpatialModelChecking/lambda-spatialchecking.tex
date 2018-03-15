@@ -376,11 +376,14 @@ $(\mathsf{taxi} \wedge \mathcal{C} \mathsf{transportsubway}) \wedge \neg((\neg( 
 \begin{frame}\frametitle{Experimental Setup}
 
 We deployed a model checker (computation logic) and the current topology (static state) as a RESTful microservice. \\
-Three alternative architectures:
+Five alternative architectures:
 \begin{itemize}
+	
 \item \textbf{Lambda Functions}: 3Gb RAM (vCPU quotas are assigned accordingly)
 \item \textbf{Single Instance  of a Big VM}: Standard F64s\_v2 (64 vcpus, 128 GB memory)
 \item \textbf{Autoscaling Group}: 5 to 20 t1.micro VMs (1Gb Ram, 1vCPU each)
+\item \textbf{Kubernetes Cluster}: 20 nodes (1Gb Ram, 1vCPU each), up to 40 pods (containers)
+\item \textbf{Mobile Device}: Quad-core ARM A53 1.2Gz CPU, 1GB RAM
 \end{itemize}
 Positions tracker (dynamic state) deployed as another standalone microservice
 
@@ -398,7 +401,7 @@ Positions tracker (dynamic state) deployed as another standalone microservice
     \item  5x / 10x / 20x / 40x / 60x time multipliers.
 \end{itemize}
 
-\item Run the experiment combining the different time multipliers with the three alternative deployments
+\item Run the experiment combining the different time multipliers with the five alternative deployments
 % \item Defined a SLA of 30 seconds/call maximum
 \end{itemize}
 
@@ -417,9 +420,10 @@ Defined a SLA of 30 seconds/call maximum for responding to model checking reques
         \end{column}
         \begin{column}{0.5\textwidth}
             \begin{itemize}
-                \item The Autoscaling group had the \textbf{worst performance}. Requests timed out (504) with 20x time or more.
-\item Lambda held an almost \textbf{constant performance} (~12s/call) for all workloads
+                \item ASG and K8 had the \textbf{worst performance} in the Cloud. Requests timed out (504) with 20x time or more.
+\item Lambda held an almost \textbf{constant performance} (~12s/call) for all workloads.
 \item The BigVM \textbf{(baseline)} performed better (9-12s) up to 20x, then started to decrease performance.
+\item The Mobile Device computes requests sequentially with a constant performance of ~100s/call. 
             \end{itemize}
         \end{column}
     \end{columns}
@@ -454,11 +458,12 @@ Defined a SLA of 30 seconds/call maximum for responding to model checking reques
 
 
 \begin{itemize}
+\item The mobile device, even though it processes only its own requests, have a prohibitive computation time of ~100s, making it unsuitable in practice.
 \item Lambda functions kept a \textbf{constant performance} even under dense workloads, being more reactive and scalable.
 \item The BigVM used as a baseline performed well for medium workloads, but not against peaks or more dense workloads \\ \textbf{(e.g. workloads unknown beforehand)}.
-
-\item The autoscaling group did not seem suitable, but more experimentation is needed (fine-tuning parameters, scaling containers?).
-\item Cost analysis to come (if the workload is more or less known, lambda could become more costly in comparison)
+\item The Autoscaling Group (VMs) and Kubernetes (Containers) did not seem suitable, mainly because of scaling-up delays (even for containers).
+\item Cost analysis to come (if the workload is more or less known, lambda could become more costly in comparison).
+\item An hybrid approach could be considered: A baseline deployment with containers, that relies on Lambda Functions to handle unexpected bursts of workload.
 \end{itemize}
 \end{frame}
 
