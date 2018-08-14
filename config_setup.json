@@ -1,1 +1,1 @@
-{"state_keeper_serverport": "http://52.27.220.158:5001", "dbhost": "mongodb://china:chairmanmaoiswatching@128.199.57.234/chinadb", "db": "chinadb", "checker_serverport": "http://topochecker-load-balancer-1231732645.us-west-2.elb.amazonaws.com:5000"}
+{"state_keeper_serverport": "http://34.219.22.65:5001", "dbhost": "mongodb://china:chairmanmaoiswatching@128.199.57.234/chinadb", "db": "chinadb", "checker_serverport": "http://34.218.254.238:5000"}

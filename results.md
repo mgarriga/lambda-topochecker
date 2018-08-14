@@ -455,3 +455,79 @@ max 78.2983567715
 min 0.465889930725
 avg 22.573838569
 Number of errors:  0
+
+
+# NEW EXPERIMENT Hybrid
+Lambda + ec2 + exp in mypc
+Time mult = 3
+Process total times:
+max 17.6253290176
+min 5.11400389671
+avg 10.1647513151
+median 8.74271500111
+Process checking times:
+max 5.55545401573
+min 2.52032613754
+avg 3.45181058884
+median 3.17547392845
+Process wait times:
+max 14.5118529797
+min 2.2135488987
+avg 6.71294072628
+median 5.31389260292
+Number of errors:  0
+
+ec2 only + exp in mypc
+Process total times:
+max 19.2044949532
+min 5.26402688026
+avg 11.0652651167
+median 10.9982479811
+Process checking times:
+max 3.43657398224
+min 2.57009315491
+avg 3.13670302868
+median 3.15740704536
+Process wait times:
+max 15.8406391144
+min 2.54561185837
+avg 7.92856208801
+median 7.74494040012
+Number of errors:  0
+
+Lambda + ec2 + exp in ec2
+Process total times:
+max 15.7430620193
+min 2.86375713348
+avg 7.76667461872
+median 6.514134883880615
+Process checking times:
+max 5.39462804794
+min 2.62148094177
+avg 3.40432742596
+median 3.159324884414673
+Process wait times:
+max 12.6369099617
+min 0.122668027878
+avg 4.36234719276
+median 2.9811580181121826
+Number of errors:  0
+
+ec2 + exp in ec2 only
+Process total times:
+max 17.2425279617
+min 2.78031182289
+avg 9.04925213814
+median 8.921335458755493
+Process checking times:
+max 3.48141098022
+min 2.57014203072
+avg 3.13005836964
+median 3.169420003890991
+Process wait times:
+max 13.879858017
+min 0.117774009705
+avg 5.9191937685
+median 5.636520504951477
+Number of errors:  0
+
