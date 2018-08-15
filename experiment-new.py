@@ -123,7 +123,13 @@ class RequestTask(object):
         end_time = time.time()
         wait_time = (end_time - start_time) - resp_json[u'mc_time']
         print 'requesttask: took', "{0:.2f}".format(end_time - start_time), "sec", '- waited',"{0:.2f}".format(wait_time)
-        return { "wait_time":wait_time, "mc_time":resp_json[u'mc_time'], "total_time":{self.presence_datetime: end_time - start_time}, "errcount":errcount}
+        lambdacalls = 0
+        vmcalls = 0
+        if resp2.json()[u'decision'] == "call Lambda": 
+            lambdacalls = 1
+        else: 
+            if resp2.json()[u'decision'] == "call VM": vmcalls = 1
+        return { "wait_time":wait_time, "mc_time":resp_json[u'mc_time'], "total_time":{self.presence_datetime: end_time - start_time}, "errcount":errcount,"lambdacalls":lambdacalls,"vmcalls":vmcalls}
 
 def addSecs(fulldate, secs):
     fulldate = fulldate + timedelta(seconds=secs)
@@ -235,10 +241,12 @@ if __name__ == '__main__':
     while not results.empty():
         lr.append(results.get(block=True, timeout=TIMEOUT))
 
-    total_times = [i['total_time'] for i in lr]
-    mc_times = [i['mc_time'] for i in lr]
-    wait_times = [i['wait_time'] for i in lr]
-    errors = [i['errcount'] for i in lr]
+    total_times = [i['total_time']  for i in lr]
+    mc_times    = [i['mc_time']     for i in lr]
+    wait_times  = [i['wait_time']   for i in lr]
+    errors      = [i['errcount']    for i in lr]
+    lambdacalls = [i['lambdacalls'] for i in lr]
+    vmcalls     = [i['vmcalls']     for i in lr]
 
     print 'Process total times:'
     onlytimes = [[v for k, v in listitem.iteritems()][0] for listitem in total_times]
@@ -246,16 +254,19 @@ if __name__ == '__main__':
     print 'min', min(onlytimes)
     print 'avg', float(sum(onlytimes)) / max(len(onlytimes), 1)
     print 'median', median(onlytimes)
-
+    print ''
     print 'Process checking times:'
     print 'max', max(mc_times)
     print 'min', min(mc_times)
     print 'avg', float(sum(mc_times)) / max(len(mc_times), 1)
     print 'median', median(mc_times)
-
+    print ''
     print 'Process wait times:'
     print 'max', max(wait_times)
     print 'min', min(wait_times)
     print 'avg', float(sum(wait_times)) / max(len(wait_times), 1)
     print 'median', median(wait_times)
     print 'Number of errors: ', sum(errors)
+    print ''
+    print 'lambda calls: ', sum(lambdacalls)
+    print 'vm calls: ', sum(vmcalls)
