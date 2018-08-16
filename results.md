@@ -719,3 +719,78 @@ Number of errors:  377
 
 lambda calls:  500
 vm calls:  595
+# Only EC2 Big (for comparison)
+Timemult = 30
+Process total times:
+max 58.8445110321
+min 16.4678401947
+avg 36.3358077505
+median 34.9519840479
+Process checking times:
+max 51.491369009
+min 16.4487471581
+avg 30.2404515054
+median 31.1350939274
+Process wait times:
+max 21.4963998795
+min 0.0143847465515
+avg 6.09535624508
+median 3.57961082458
+Number of errors:  0
+
+
+Timemult = 40 
+Process total times:
+max 58.5480289459
+min 6.69329500198
+avg 35.6100121707
+median 41.6255071163
+Process checking times:
+max 40.7137241364
+min 6.67418313026
+avg 27.9743373614
+median 31.0048425198
+Process wait times:
+max 20.627038002
+min 0.0145041942596
+avg 7.63567480928
+median 10.0683108568
+Number of errors:  0
+
+Timemult = 50
+Process total times:
+max 55.9519000053
+min 6.82731986046
+avg 36.3663270928
+median 41.0913928747
+Process checking times:
+max 40.6370379925
+min 6.80867695808
+avg 28.1766356773
+median 30.6986728907
+Process wait times:
+max 19.3507971764
+min 0.0145809650421
+avg 8.18969141544
+median 9.43143510818
+Number of errors:  0
+
+Timemult = 60
+Process total times:
+max 55.591531992
+min 6.85062789917
+avg 37.7888700323
+median 42.6915189028
+Process checking times:
+max 40.5182287693
+min 6.83121585846
+avg 28.7996768024
+median 30.9088475704
+Process wait times:
+max 17.9643938541
+min 0.0144908428192
+avg 8.98919322995
+median 11.5571018457
+Number of errors:  0
+	
+
